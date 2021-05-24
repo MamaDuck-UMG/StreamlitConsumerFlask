@@ -372,7 +372,7 @@ elif nodoseleccionado=='Nodo 2':#opcion siguiente
   #help="Este botón lleva a cabo una función de inteligencia artificial, la cual, analizando el número de emergencias y las horas, predice por regresión lineal emergencias estimadas"):
   user_input = st.multiselect("Seleccione la hora u horas a predecir",[0.00,1.00,2.00,3.00,4.00,5.00,6.00,7.00,8.00,9.00,10.00,11.00,12.00,13.00,14.00,15.00,16.00,17.00,18.00,19.00,20.00,21.00,22.00,23.00])
   for x in user_input:
-    requestapiRegresionPolinomial(nodoseleccionado, int(x))
+    requestapiRegresionPolinomial("2", int(x))
   st.header('Análisis de emergencias recurrentes')
   if st.button("Obtener análisis de emergencia más probable"):
     regresionlogCalling(prepdatoLRML(e,f,g))
@@ -383,7 +383,7 @@ elif nodoseleccionado=='Nodo 3':#opcion 3
     plotgraphline(c,d,'brown')
     user_input = st.multiselect("Seleccione la hora u horas a predecir",[0.00,1.00,2.00,3.00,4.00,5.00,6.00,7.00,8.00,9.00,10.00,11.00,12.00,13.00,14.00,15.00,16.00,17.00,18.00,19.00,20.00,21.00,22.00,23.00])
     for x in user_input:
-      requestapiRegresionPolinomial(nodoseleccionado, int(x))
+      requestapiRegresionPolinomial("3", int(x))
     st.header('Análisis de emergencias recurrentes')
     if st.button("Obtener análisis de emergencia más probable"):
       regresionlogCalling(prepdatoLRML(e,f,g))
@@ -393,7 +393,7 @@ elif nodoseleccionado=='Nodo 4':#opcion 4
     plotgraphpoints(c,d,'purple')
     user_input = st.multiselect("Seleccione la hora u horas a predecir",[0.00,1.00,2.00,3.00,4.00,5.00,6.00,7.00,8.00,9.00,10.00,11.00,12.00,13.00,14.00,15.00,16.00,17.00,18.00,19.00,20.00,21.00,22.00,23.00])
     for x in user_input:
-      requestapiRegresionPolinomial(nodoseleccionado, int(x))
+      requestapiRegresionPolinomial("4", int(x))
     st.header('Análisis de emergencias recurrentes')
     if st.button("Obtener análisis de emergencia más probable"):
       regresionlogCalling(prepdatoLRML(e,f,g))
@@ -405,7 +405,7 @@ elif nodoseleccionado=='General':#si se selecciona un analisis gneral
   plotgraphline(c,d,'red')
   user_input = st.multiselect("Seleccione la hora u horas a predecir",[0.00,1.00,2.00,3.00,4.00,5.00,6.00,7.00,8.00,9.00,10.00,11.00,12.00,13.00,14.00,15.00,16.00,17.00,18.00,19.00,20.00,21.00,22.00,23.00])
   for x in user_input:
-      requestapiRegresionPolinomial(nodoseleccionado, int(x))
+      requestapiRegresionPolinomial('general', int(x))
   listdt=list()
  #i y h tienen los datos necesarios de fecha y numero de repeticiones menesteres para el siguiente procedimiento
   for x in range(len(h)):
