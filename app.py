@@ -322,18 +322,18 @@ def plotgraphpoints(c,d,color1):#muestra un grafico dada una x, y y un color. Gr
 
   st.pyplot(p9.ggplot.draw(dotgraph + p9.geom_point(color=color1,alpha=0.5,size=2.7)))
 def requestapiRegresionPolinomial(numnodo,hora):
-    url = 'http://127.0.0.1:5000/predictNumEmergencias'
+    url = 'http://143.198.146.111:5000/predictNumEmergencias'
     myobj = {'node': numnodo,'hour':int(hora)}
     req = requests.post(url.strip(), json = myobj)
     st.write(req.text)
     st.write("Método: regresión polinomial")
-    url2 = 'http://127.0.0.1:5000/getpng'
+    url2 = 'http://143.198.146.111:5000/getpng'
     reqimg = requests.post(url2.strip(), json = myobj)
     st.image(reqimg.content, caption='Prediccion general',width=700)
     st.success("Se ha completado el análisis para la hora seleccionada")
 
 def regresionlogCalling(dato):
-    url = 'http://127.0.0.1:5000/predictemtype'
+    url = 'http://143.198.146.111:5000/predictemtype'
     myobj = {'test': dato}
     req = requests.post(url.strip(), json = myobj)
     st.write(req.text)
@@ -345,8 +345,8 @@ def regresionlogCalling(dato):
 nodoseleccionado = st.radio("Seleccione un nodo",#menu para seleccionar que nodo vamos a analizar
 ('Mama Duck', 'Nodo 2', 'Nodo 3', 'Nodo 4','General'))
 if(st.button("Inicializar modelos")):
-  ra=requests.get('http://127.0.0.1:5000/trainNumEmergencias')
-  rb=requests.get('http://127.0.0.1:5000/traincentroids')
+  ra=requests.get('http://143.198.146.111:5000/trainNumEmergencias')
+  rb=requests.get('http://143.198.146.111:5000/traincentroids')
   st.write("Se han entrenado y actualizado los modelos para implementar funciones de análisis y otros complementos")
 if nodoseleccionado=='Mama Duck':
   st.header('Análisis de los datos del Nodo Mama Duck')
