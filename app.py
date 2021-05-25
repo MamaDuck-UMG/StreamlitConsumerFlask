@@ -149,27 +149,24 @@ def obtencionCoords():#obtengo las coordenadas de latitud y longitud de todos lo
   #lat y lon 1 es para coordenadas de llamadas
   #lat  lon2 son para coordenadas de NODOS
   list1=list()
-  list2=list()
   for s in strindices:
     for i in range(len(jn1.get(str(s))[0]['history'])):
       auxlat=jn1.get(str(s))[0]['history'][i]['localization'][0]['lat']
       auxlon=jn1.get(str(s))[0]['history'][i]['localization'][0]['long']
       list1.append([auxlat,auxlon])
-
-    list2.append([jn1.get(str(s))[0]['localization'][0]['lat'],jn1.get(str(s))[0]['localization'][0]['long']])
+    #esto era para la ubicacion arbitraria de los nodos
+    #list2.append([jn1.get(str(s))[0]['localization'][0]['lat'],jn1.get(str(s))[0]['localization'][0]['long']])
   a1=np.array(list1)
-  a2=np.array(list2)
+  #a2=np.array(list2)
   #print(a1.reshape(-2,2))
   df1 = pd.DataFrame(
   a1,
   columns=['lat', 'lon'])
-  #return df1, df2
   #print(a1.reshape(-2,2))
-  df2 = pd.DataFrame(
-  a2,
-  columns=['lat', 'lon'])
-  #return df1, df2
-  return df1,df2
+  #df2 = pd.DataFrame(
+  #a2,
+  #columns=['lat', 'lon'])
+  return df1
 
 
 def obtencionlistasJS(numnodo):
@@ -322,18 +319,18 @@ def plotgraphpoints(c,d,color1):#muestra un grafico dada una x, y y un color. Gr
 
   st.pyplot(p9.ggplot.draw(dotgraph + p9.geom_point(color=color1,alpha=0.5,size=2.7)))
 def requestapiRegresionPolinomial(numnodo,hora):
-    url = 'http://143.198.146.111:5000/predictNumEmergencias'
+    url = 'http://localhost:5000/predictNumEmergencias'
     myobj = {'node': numnodo,'hour':int(hora)}
     req = requests.post(url.strip(), json = myobj)
     st.write(req.text)
     st.write("Método: regresión polinomial")
-    url2 = 'http://143.198.146.111:5000/getpng'
+    url2 = 'http://localhost:5000/getpng'
     reqimg = requests.post(url2.strip(), json = myobj)
     st.image(reqimg.content, caption='Prediccion general',width=700)
     st.success("Se ha completado el análisis para la hora seleccionada")
 
 def regresionlogCalling(dato):
-    url = 'http://143.198.146.111:5000/predictemtype'
+    url = 'http://localhost:5000/predictemtype'
     myobj = {'test': dato}
     req = requests.post(url.strip(), json = myobj)
     st.write(req.text)
@@ -345,8 +342,8 @@ def regresionlogCalling(dato):
 nodoseleccionado = st.radio("Seleccione un nodo",#menu para seleccionar que nodo vamos a analizar
 ('Mama Duck', 'Nodo 2', 'Nodo 3', 'Nodo 4','General'))
 if(st.button("Inicializar modelos")):
-  ra=requests.get('http://143.198.146.111:5000/trainNumEmergencias')
-  rb=requests.get('http://143.198.146.111:5000/traincentroids')
+  ra=requests.get('http://localhost:5000/trainNumEmergencias')
+  rb=requests.get('http://localhost:5000/traincentroids')
   st.write("Se han entrenado y actualizado los modelos para implementar funciones de análisis y otros complementos")
 if nodoseleccionado=='Mama Duck':
   st.header('Análisis de los datos del Nodo Mama Duck')
@@ -422,27 +419,25 @@ elif nodoseleccionado=='General':#si se selecciona un analisis gneral
     regresionlogCalling(prepdatoLRMLGen(e,f,g))
   st.header("Mapa de nodos y emergencias")
   st.write("Hexagonos: ubicacion de nodos, Círculo verde: casos de emergencia")
-  df1,df2=obtencionCoords()
+  df1=obtencionCoords()
   if st.checkbox('Mostrar tabla de coordenadas de emergencia'):
     st.write(df1)
-  if st.checkbox('Mostrar tabla de coordenadas de Nodos'):
-    st.write(df2)
-  rmap = requests.get('http://143.198.146.111:5000/map')
+  rmap = requests.get('http://localhost:5000/map')
   
   components.html(rmap.text,height=1000,width=1300)
   st.title("Análisis de clustering para predecir centroides")
-  drawcentroids = requests.get('http://143.198.146.111:5000/obtenerCentroidesgraph')
+  drawcentroids = requests.get('http://localhost:5000/obtenerCentroidesgraph')
   st.image(drawcentroids.content, caption='Prediccion general',width=800)
   st.header("Una vez obtenidos los centroides señalados en estrellas, se mostrará la ubicación precisa de los mismos en el plano (Hexagonos) junto con las llamadas (puntos verdes)")
-  setcentroids = requests.get('http://143.198.146.111:5000/clustercentroids')
+  setcentroids = requests.get('http://localhost:5000/clustercentroids')
   components.html(setcentroids.text,height=900,width=900)
   st.header("Coordenadas de los nodos propuestos")
-  dfcap = requests.get('http://143.198.146.111:5000/obtenerCentroidesrender')
+  dfcap = requests.get('http://localhost:5000/obtenerCentroidesrender')
   st.image(dfcap.content, caption='Coordenadas propuestas, método Kmeans',width=500)
   st.title("Nodos receptores Mama Duck")
   st.write("A continución se muestra la distribución de nodos de Mama Duck, sus interconexiones e información")
 
-  r = requests.get('http://143.198.146.111:5000/nodes')
+  r = requests.get('http://localhost:5000/nodes')
   
   components.html(r.text,height=400,width=1500)
 
@@ -455,5 +450,5 @@ elif nodoseleccionado=='General':#si se selecciona un analisis gneral
   st.write("El Nodo: %d "%res[1],"requiere ser monitoreado después del nodo principal Mama Duck, consulte la tabla para mas detalles")#en res 1 está el nodo elegido como prioritario, esta función imprimirá el porqué primero este y porque los demas
   st.header("Orden de prioridad")
   st.header(res)
-  dfcap = requests.get('http://143.198.146.111:5000/nodestrajectory')
+  dfcap = requests.get('http://localhost:5000/nodestrajectory')
   st.image(dfcap.content, caption='Detalles de recorrido',width=700)
