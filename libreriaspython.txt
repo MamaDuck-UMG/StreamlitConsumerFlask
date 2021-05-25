@@ -1,0 +1,8 @@
+bokeh
+plotnine
+Pillow
+numpy
+pandas
+json
+matplotlib
+requests
