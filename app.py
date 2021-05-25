@@ -11,11 +11,16 @@ from queue import PriorityQueue #libreria colas de prioridad
 import math #Para los infinitos
 import requests
 import warnings
+import matplotlib.pyplot as plt
+from os import remove
 warnings.filterwarnings('ignore')
 image = Image.open('duck.png')#abro el ícono de Mama Duck
 st.title("Reportes para Mama Duck")#encabezado
-st.image(image, caption='Mama Duck',width=80)#subo la imagen con su tamaño y pie de foto
-
+st.sidebar.title("Bienvenidos")#encabezado
+st.sidebar.image(image, caption='Mama Duck',width=200)#subo la imagen con su tamaño y pie de foto
+#server="143.198.146.111"#cambiar a localhost si se desea probar en un mismo host que flask
+server="localhost"
+puerto=5000#5000 es el puerto predeterminado de flask
 #importamos el json que es actualmente un archivo de ejemplo
 with open('ejemplo.json') as file:
     datajson = json.load(file)#cargamos el archivo a una variable
@@ -319,37 +324,66 @@ def plotgraphpoints(c,d,color1):#muestra un grafico dada una x, y y un color. Gr
 
   st.pyplot(p9.ggplot.draw(dotgraph + p9.geom_point(color=color1,alpha=0.5,size=2.7)))
 def requestapiRegresionPolinomial(numnodo,hora):
-    url = 'http://localhost:5000/predictNumEmergencias'
+    url = 'http://%s:%s/predictNumEmergencias'%(server,puerto)
     myobj = {'node': numnodo,'hour':int(hora)}
     req = requests.post(url.strip(), json = myobj)
     st.write(req.text)
     st.write("Método: regresión polinomial")
-    url2 = 'http://localhost:5000/getpng'
+    url2 = 'http://%s:%s/getpng'%(server,puerto)
     reqimg = requests.post(url2.strip(), json = myobj)
     st.image(reqimg.content, caption='Prediccion general',width=700)
     st.success("Se ha completado el análisis para la hora seleccionada")
 
 def regresionlogCalling(dato):
-    url = 'http://localhost:5000/predictemtype'
+    url = 'http://%s:%s/predictemtype'%(server,puerto)
     myobj = {'test': dato}
     req = requests.post(url.strip(), json = myobj)
     st.write(req.text)
     st.write("Método: regresión Logistica")
 
 ## FIN ESPACIO PARA FUNCIONES GLOBALES, DE ML Y DE IA
+st.sidebar.header("Para iniciar, presione el siguiente botón")
 
 
-nodoseleccionado = st.radio("Seleccione un nodo",#menu para seleccionar que nodo vamos a analizar
-('Mama Duck', 'Nodo 2', 'Nodo 3', 'Nodo 4','General'))
-if(st.button("Inicializar modelos")):
-  ra=requests.get('http://localhost:5000/trainNumEmergencias')
-  rb=requests.get('http://localhost:5000/traincentroids')
-  st.write("Se han entrenado y actualizado los modelos para implementar funciones de análisis y otros complementos")
+
+@st.cache(allow_output_mutation=True)
+def button_states():
+    return {"pressed": None}
+botonreload=st.button("Actualizar")
+
+
+boton = st.sidebar.button("Inicializar modelos")
+is_pressed = button_states()  # gets our cached dictionary
+if botonreload:
+  st.cache(allow_output_mutation=False)#para que a fuerza se tengan que volver a cargar los modelos
+  is_pressed.update({"pressed": False})
+  #if not server=="localhost":
+    #remove('/home/mama/FlaskAPI/modelos/.')
+  #else:
+    #remove('c:/users/Ariel Yohaina/desktop/mamaduckflask/modelos/.')
+if boton:
+    # any changes need to be performed in place
+    is_pressed.update({"pressed": True})
+
+if is_pressed["pressed"]:  
+
+
+  ra=requests.get('http://%s:%s/trainNumEmergencias'%(server,puerto))
+  rb=requests.get('http://%s:%s/traincentroids'%(server,puerto))
+
+  nodoseleccionado = st.sidebar.selectbox("Seleccione una de las siguientes opciones para efectuar los análisis",
+  ("Mama Duck", "Nodo 2", "Nodo 3", "Nodo 4", "General")
+  )
+  st.sidebar.write("Se han entrenado y actualizado los modelos para implementar funciones de análisis y otros complementos")
+  st.sidebar.success('Ahora puede continuar con el análisis')
+else:
+  st.warning("Presione el botón 'inicializar modelos' en la parte izquierda")
+  st.stop()
 if nodoseleccionado=='Mama Duck':
   st.header('Análisis de los datos del Nodo Mama Duck')
   a,b,c,d,e,f,g=obtencionlistasJS('1')#obtendre todas las variables que regresa en el orden documentado
 
-  plotgraphline(c,d,'blue')#para que haga una grafica de lineas
+  plotgraphpoints(c,d,'blue')#para que haga una grafica de lineas
 
   user_input = st.multiselect("Seleccione la hora u horas a predecir",[0.00,1.00,2.00,3.00,4.00,5.00,6.00,7.00,8.00,9.00,10.00,11.00,12.00,13.00,14.00,15.00,16.00,17.00,18.00,19.00,20.00,21.00,22.00,23.00])
   #no se usará la funcion time porque causa conflicto el tipo de datos datetime
@@ -363,7 +397,7 @@ elif nodoseleccionado=='Nodo 2':#opcion siguiente
   st.header('Análisis de los datos del Nodo 2')
   a,b,c,d,e,f,g=obtencionlistasJS('2')
 #quiero intentar analizar equis tipo de llamada mas probable
-  plotgraphline(c,d,'red')
+  plotgraphpoints(c,d,'red')
 #predTipoEmergencia(x,y)
   #if st.button("Estimar no. de emergencias dada una hora", key=None, 
   #help="Este botón lleva a cabo una función de inteligencia artificial, la cual, analizando el número de emergencias y las horas, predice por regresión lineal emergencias estimadas"):
@@ -377,7 +411,7 @@ elif nodoseleccionado=='Nodo 2':#opcion siguiente
 elif nodoseleccionado=='Nodo 3':#opcion 3
     st.header('Análisis de los datos del Nodo 3')
     a,b,c,d,e,f,g=obtencionlistasJS('3')
-    plotgraphline(c,d,'brown')
+    plotgraphpoints(c,d,'brown')
     user_input = st.multiselect("Seleccione la hora u horas a predecir",[0.00,1.00,2.00,3.00,4.00,5.00,6.00,7.00,8.00,9.00,10.00,11.00,12.00,13.00,14.00,15.00,16.00,17.00,18.00,19.00,20.00,21.00,22.00,23.00])
     for x in user_input:
       requestapiRegresionPolinomial("3", int(x))
@@ -422,22 +456,22 @@ elif nodoseleccionado=='General':#si se selecciona un analisis gneral
   df1=obtencionCoords()
   if st.checkbox('Mostrar tabla de coordenadas de emergencia'):
     st.write(df1)
-  rmap = requests.get('http://localhost:5000/map')
+  rmap = requests.get('http://%s:%s/map'%(server,puerto))
   
-  components.html(rmap.text,height=1000,width=1300)
+  components.html(rmap.text,height=900,width=1000)
   st.title("Análisis de clustering para predecir centroides")
-  drawcentroids = requests.get('http://localhost:5000/obtenerCentroidesgraph')
+  drawcentroids = requests.get('http://%s:%s/obtenerCentroidesgraph'%(server,puerto))
   st.image(drawcentroids.content, caption='Prediccion general',width=800)
   st.header("Una vez obtenidos los centroides señalados en estrellas, se mostrará la ubicación precisa de los mismos en el plano (Hexagonos) junto con las llamadas (puntos verdes)")
-  setcentroids = requests.get('http://localhost:5000/clustercentroids')
+  setcentroids = requests.get('http://%s:%s/clustercentroids'%(server,puerto))
   components.html(setcentroids.text,height=900,width=900)
   st.header("Coordenadas de los nodos propuestos")
-  dfcap = requests.get('http://localhost:5000/obtenerCentroidesrender')
+  dfcap = requests.get('http://%s:%s/obtenerCentroidesrender'%(server,puerto))
   st.image(dfcap.content, caption='Coordenadas propuestas, método Kmeans',width=500)
   st.title("Nodos receptores Mama Duck")
   st.write("A continución se muestra la distribución de nodos de Mama Duck, sus interconexiones e información")
 
-  r = requests.get('http://localhost:5000/nodes')
+  r = requests.get('http://%s:%s/nodes'%(server,puerto))
   
   components.html(r.text,height=400,width=1500)
 
@@ -450,5 +484,5 @@ elif nodoseleccionado=='General':#si se selecciona un analisis gneral
   st.write("El Nodo: %d "%res[1],"requiere ser monitoreado después del nodo principal Mama Duck, consulte la tabla para mas detalles")#en res 1 está el nodo elegido como prioritario, esta función imprimirá el porqué primero este y porque los demas
   st.header("Orden de prioridad")
   st.header(res)
-  dfcap = requests.get('http://localhost:5000/nodestrajectory')
-  st.image(dfcap.content, caption='Detalles de recorrido',width=700)
+  dfcap3 = requests.get('http://%s:%s/nodestrajectory'%(server,puerto))
+  st.image(dfcap3.content, caption='Detalles de recorrido',width=700)
