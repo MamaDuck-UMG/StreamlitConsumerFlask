@@ -18,8 +18,8 @@ image = Image.open('duck.png')#abro el ícono de Mama Duck
 st.title("Reportes para Mama Duck")#encabezado
 st.sidebar.title("Bienvenidos")#encabezado
 st.sidebar.image(image, caption='Mama Duck',width=200)#subo la imagen con su tamaño y pie de foto
-#server="143.198.146.111"#cambiar a localhost si se desea probar en un mismo host que flask
-server="localhost"
+server="143.198.146.111"#cambiar a localhost si se desea probar en un mismo host que flask
+#server="localhost"#comentar al usar servidor remoto
 puerto=5000#5000 es el puerto predeterminado de flask
 #importamos el json que es actualmente un archivo de ejemplo
 with open('ejemplo.json') as file:
